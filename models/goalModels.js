@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const taskSchema = new Schema({
+const milestoneSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -16,7 +16,7 @@ const taskSchema = new Schema({
   },
 });
 
-const listSchema = new Schema({
+const goalSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -29,7 +29,7 @@ const listSchema = new Schema({
     type: Date,
     required: true,
   },
-  tasks: [taskSchema],
+  milestone: [milestoneSchema],
 });
 
-module.exports = mongoose.model('List', listSchema);
+module.exports = mongoose.model('List', goalSchema);
