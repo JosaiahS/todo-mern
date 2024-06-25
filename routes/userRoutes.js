@@ -1,12 +1,13 @@
 const express = require('express');
 const User = require('../models/userModel');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
 
 const jwtSecret = process.env.JWT_SECRET;
 
 // Get all users
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -31,11 +32,42 @@ router.post('/', async (req, res) => {
 });
 
 // Get a single user by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(400).json({ message: 'User not found' });
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update a user by ID
+router.patch('/:id', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(400).json({ message: 'User not found' });
+
+    user.username = req.body.username || user.username;
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete a user by ID
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(400).json({ message: 'User not found' });
+
+    await user.deleteOne();
+    res.json({ message: 'User deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
